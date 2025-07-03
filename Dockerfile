@@ -11,7 +11,8 @@ WORKDIR /app
 # Variables de entorno para Python
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    PATH="/usr/local/bin:$PATH"
 
 # Instalar dependencias del sistema necesarias
 RUN apt-get update && apt-get install -y \
@@ -26,30 +27,26 @@ COPY backend/requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
+# Verificar instalación de uvicorn
+RUN uvicorn --version
+
 # Copiar código del backend
 COPY backend/ /app/backend/
 
 # Crear directorio para base de datos
 RUN mkdir -p /app/data
 
-# Crear script de inicialización
+# Crear script de inicialización simplificado
 RUN echo '#!/bin/bash\n\
+set -e\n\
 cd /app\n\
-python -c "\n\
-import sys\n\
-sys.path.append(\"/app\")\n\
-from backend.database import engine\n\
-from backend.models import Base\n\
-Base.metadata.create_all(bind=engine)\n\
-print(\"✅ Base de datos creada/verificada\")\n\
-"\n\
-exec \"$@\"' > /app/entrypoint.sh && chmod +x /app/entrypoint.sh
+echo "Inicializando base de datos..."\n\
+python -c "import sys; sys.path.append(\"/app\"); from backend.database import engine; from backend.models import Base; Base.metadata.create_all(bind=engine); print(\"✅ Base de datos creada/verificada\")"\n\
+echo "Iniciando aplicación..."\n\
+exec "$@"' > /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 # Exponer puerto
 EXPOSE 8000
 
-# Punto de entrada
-ENTRYPOINT ["/app/entrypoint.sh"]
-
 # Comando para ejecutar la aplicación
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/app/entrypoint.sh", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
