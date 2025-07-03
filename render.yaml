@@ -1,9 +1,9 @@
 # ==========================================
-# CONFIGURACIÓN RENDER - DOCKER DEPLOY
+# CONFIGURACIÓN RENDER - DOCKER DEPLOY FULL STACK
 # ==========================================
 
 services:
-  # Backend Service
+  # Backend Service (FastAPI)
   - type: web
     name: techstore-backend
     env: docker
@@ -18,4 +18,21 @@ services:
       - key: DATABASE_URL
         value: sqlite:///./inventario.db
       - key: ENVIRONMENT
+        value: production
+      - key: CORS_ORIGINS
+        value: "*"
+
+  # Frontend Service (React + Nginx)
+  - type: web
+    name: techstore-frontend
+    env: docker
+    dockerfilePath: ./Dockerfile.frontend
+    dockerContext: .
+    plan: starter
+    region: oregon
+    healthCheckPath: /
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://techstore-backend.onrender.com
+      - key: NODE_ENV
         value: production
