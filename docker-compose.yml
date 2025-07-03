@@ -1,0 +1,48 @@
+# ==========================================
+# DOCKER COMPOSE - DESARROLLO LOCAL
+# ==========================================
+
+version: '3.8'
+
+services:
+  # Backend - FastAPI
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: techstore-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+      - ./inventario.db:/app/inventario.db
+    environment:
+      - PYTHONPATH=/app
+      - DATABASE_URL=sqlite:///./inventario.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/salud"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend - React + Nginx
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: techstore-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  default:
+    name: techstore-network

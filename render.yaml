@@ -1,17 +1,21 @@
+# ==========================================
+# CONFIGURACIÓN RENDER - DOCKER DEPLOY
+# ==========================================
+
 services:
-  # Backend API
+  # Backend Service
   - type: web
     name: techstore-backend
-    env: python
-    plan: free
-    buildCommand: "chmod +x build_render.sh && ./build_render.sh"
-    startCommand: "cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT"
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    region: oregon
+    healthCheckPath: /api/salud
     envVars:
-      - key: DATABASE_URL
-        value: "sqlite:///./inventario.db"
-      - key: SECRET_KEY
-        generateValue: true
       - key: PYTHONPATH
-        value: "/opt/render/project/src/backend"
+        value: /app
+      - key: DATABASE_URL
+        value: sqlite:///./inventario.db
       - key: ENVIRONMENT
-        value: "production"
+        value: production
