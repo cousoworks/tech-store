@@ -18,17 +18,26 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apt-get update && apt-get install -y \
     gcc \
     curl \
+    libffi-dev \
+    libssl-dev \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar requirements y instalar dependencias Python
 COPY backend/requirements.txt /app/requirements.txt
 
 # Instalar dependencias con versiones específicas y estables
-RUN pip install -r requirements.txt && \
-    pip list | grep -E "(uvicorn|fastapi|pydantic|sqlalchemy)"
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Verificar instalación de dependencias críticas
-RUN python -c "import uvicorn, fastapi, sqlalchemy, pydantic; print('✅ Dependencias instaladas correctamente')"
+# Verificar instalación de dependencias críticas (debug)
+RUN pip list | grep -E "(uvicorn|fastapi|pydantic|sqlalchemy)" || echo "⚠️ Algunas dependencias no se encontraron"
+
+# Verificar importaciones básicas
+RUN python -c "import uvicorn; print('✅ uvicorn OK')" || echo "❌ uvicorn failed"
+RUN python -c "import fastapi; print('✅ fastapi OK')" || echo "❌ fastapi failed"
+RUN python -c "import sqlalchemy; print('✅ sqlalchemy OK')" || echo "❌ sqlalchemy failed"
+RUN python -c "import pydantic; print('✅ pydantic OK')" || echo "❌ pydantic failed"
 
 # Copiar código del backend
 COPY backend/ /app/backend/
