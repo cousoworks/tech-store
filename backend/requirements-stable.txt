@@ -1,0 +1,30 @@
+# ==========================================
+# DEPENDENCIAS BACKEND - ULTRA ESTABLES
+# ==========================================
+
+# Framework principal
+fastapi==0.88.0
+
+# Servidor ASGI (sin extras)
+uvicorn==0.18.0
+
+# Base de datos
+sqlalchemy==1.4.48
+
+# Validación (v1 - sin Rust)
+pydantic==1.10.12
+
+# Autenticación simplificada
+python-jose==3.3.0
+cryptography==38.0.4
+passlib==1.7.4
+
+# Utilidades básicas
+python-multipart==0.0.5
+python-dotenv==0.19.2
+
+# Servidor producción
+gunicorn==20.1.0
+
+# Email validation
+email-validator==1.3.1

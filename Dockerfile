@@ -24,11 +24,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar requirements y instalar dependencias Python
-COPY backend/requirements.txt /app/requirements.txt
+COPY backend/requirements-simple.txt /app/requirements.txt
 
 # Instalar dependencias con versiones específicas y estables
 RUN pip install --upgrade pip
+RUN echo "📋 Contenido del requirements.txt:" && cat requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
+RUN echo "📦 Paquetes instalados:" && pip list
 
 # Verificar instalación de dependencias críticas (debug)
 RUN pip list | grep -E "(uvicorn|fastapi|pydantic|sqlalchemy)" || echo "⚠️ Algunas dependencias no se encontraron"
