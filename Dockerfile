@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y \
 COPY backend/requirements.txt /app/requirements.txt
 
 # Instalar dependencias con versiones específicas y estables
-RUN pip install --no-cache-dir -r requirements.txt && \
+RUN pip install -r requirements.txt && \
     pip list | grep -E "(uvicorn|fastapi|pydantic|sqlalchemy)"
 
 # Verificar instalación de dependencias críticas
